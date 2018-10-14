@@ -12,18 +12,53 @@ includelib      user32.lib
 include         kernel32.inc
 includelib      kernel32.lib
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+;Equ 等值定义
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+IDM_MAIN         equ           1000h
+
+IDM_NEW          equ           1101h
+IDM_OPEN         equ           1102h
+IDM_SAVE          equ           1103h
+IDM_SAVEAS      equ           1104h
+IDM_QUIT          equ           1105h
+
+IDM_UNDO        equ           1201h
+IDM_CUT            equ           1202h
+IDM_COPY         equ            1203h
+IDM_PASTE         equ           1204h
+IDM_DELETE        equ           1205h
+IDM_FIND           equ           1206h
+IDM_FINDNEXT   equ           1207h
+IDM_REPLACE     equ            1208h
+IDM_TURN          equ            1209h
+IDM_ALL             equ            1210h
+IDM_DATE          equ            1211h
+
+IDM_FONT         equ             1301h
+
+IDM_HELP          equ             1401h
+IDM_ABOUT       equ             1402h
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;数据段
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  
 .data?
 	hInstance dd ?
 	hWinMain dd ?
+	hMenu dd ?
+	hSubMenu dd ?
 .const
-	szClassName db 'MyClass',0
-	szCaptionMain db ' My first Window!',0
-	szText db 'win32 Assembly, Simple and powerful!',0
+	szClassName db 'MyTextEditer',0
+	szCaptionMain db 'TextEditer++',0
+	szText db "Let's do something!",0
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;代码段
 .code
+;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+_Quit  PROC
+				invoke DestroyWindow, hWinMain
+				invoke PostQuitMessage,NULL
+				ret
+_Quit  ENDP
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ;窗口过程
 ;>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -33,7 +68,12 @@ _ProcWinMain PROC USES ebx edi esi,hWnd,uMsg,wParam,lParam
 	local @hDc
 	mov eax,uMsg
 ;**********************************************************************************
-	.if			eax == WM_PAINT
+	.if			eax == WM_CREATE
+				invoke GetSubMenu,hMenu,1
+				mov hSubMenu,eax
+
+;**********************************************************************************
+	.elseif	eax == WM_PAINT
 				invoke BeginPaint, hWnd, addr @stPs
 				mov @hDc, eax
 				invoke GetClientRect, hWnd, addr @stRect
@@ -41,10 +81,10 @@ _ProcWinMain PROC USES ebx edi esi,hWnd,uMsg,wParam,lParam
 				addr @stRect,\
 				DT_SINGLELINE Or DT_CENTER Or DT_VCENTER
 				invoke EndPaint, hWnd, addr @stPs
+
 ;**********************************************************************************
 	.elseif	eax == WM_CLOSE
-				invoke DestroyWindow, hWinMain
-				invoke PostQuitMessage,0
+				call _Quit
 ;**********************************************************************************
 	.else
 				invoke DefWindowProc, hWnd, uMsg, wParam,lParam
@@ -66,6 +106,8 @@ _WinMain	PROC
 ;**********************************************************************************
 	invoke LoadCursor,0, IDC_ARROW
 	mov @stWndClass.hCursor, eax
+	invoke LoadIcon,0,IDI_APPLICATION
+	mov @stWndClass.hIcon, eax
 	push hInstance
 	pop @stWndClass.hInstance
 	mov @stWndClass.cbSize, sizeof WNDCLASSEX
@@ -79,7 +121,7 @@ _WinMain	PROC
 ;**********************************************************************************
 	invoke CreateWindowEx,WS_EX_CLIENTEDGE,\
 				offset szClassName,offset szCaptionMain,\
-				WS_OVERLAPPEDWINDOW,\
+				WS_OVERLAPPEDWINDOW or WS_VSCROLL ,\
 				100,100,600,400,\
 				NULL,NULL,hInstance,NULL
 	mov hWinMain,eax
