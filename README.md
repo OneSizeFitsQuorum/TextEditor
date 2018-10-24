@@ -1,2 +1,2 @@
-# TextEditer
-This is a TextEditer created By LebronAl,Altria-Ex,Polestar-Lu.
+# TextEditor
+This is a TextEditor created By LebronAl,Altria-Ex,Polestar-Lu.
