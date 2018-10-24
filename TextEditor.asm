@@ -61,8 +61,8 @@ IDCC_STATUSBAR    equ      3000h
 	hSubMenu dd ?
 
 .const
-	szClassName db 'MyTextEditer',0
-	szCaptionMain db 'TextEditer++',0
+	szClassName db 'MyTextEditor',0
+	szCaptionMain db 'TextEditor++',0
 	szText db "Let's do something!",0
 
 	szDllRiched20    db       'riched20.dll',0
@@ -72,7 +72,7 @@ IDCC_STATUSBAR    equ      3000h
 
 	dwStatusWidth dd          200,500,300,-1
 
-	szAboutTitle     db          '关于TextEditer++的信息',0
+	szAboutTitle     db          '关于TextEditor++的信息',0
 	szAbout            db         '基于Win32的文本编辑器',0dh,0ah,0dh,\
 										  '开发者：谭新宇 卢北辰 刘文华',0dh,0ah,0
 

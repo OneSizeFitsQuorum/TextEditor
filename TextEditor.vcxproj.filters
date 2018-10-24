@@ -25,7 +25,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="TextEditer.asm">
+    <MASM Include="TextEditor.asm">
       <Filter>源文件</Filter>
     </MASM>
   </ItemGroup>
