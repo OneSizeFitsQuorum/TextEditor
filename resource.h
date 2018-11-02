@@ -3,12 +3,14 @@
 // π© resource.rc  π”√
 //
 #define IDM_MAIN                        0x1000
+
 #define IDM_NEW                         0x1101
 #define IDM_OPEN                        0x1102
 #define IDM_SAVE                        0x1103
 #define IDM_SAVEAS                      0x1104
 #define IDM_PAGESET                     0x1105
 #define IDM_QUIT                        0x1106
+
 #define IDM_UNDO                        0x1201
 #define IDM_REDO                        0x1202
 #define IDM_CUT                         0x1203
@@ -21,7 +23,9 @@
 #define IDM_TURN                        0x1210
 #define IDM_ALL                         0x1211
 #define IDM_DATE                        0x1212
+
 #define IDM_FONT                        0X1301
+
 #define IDM_HELP                        0x1401
 #define IDM_ABOUT                       0x1402
 

@@ -35,10 +35,11 @@ IDM_COPY		equ		1204h
 IDM_PASTE		equ		1205h
 IDM_DELETE		equ		1206h
 IDM_FIND		equ		1207h
-IDM_REPLACE		equ		1208h
-IDM_TURN		equ		1209h
-IDM_ALL			equ		1210h
-IDM_DATE		equ		1211h
+IDM_FINDNEXT	equ		1208h
+IDM_REPLACE		equ		1209h
+IDM_TURN		equ		1210h
+IDM_ALL			equ		1211h
+IDM_DATE		equ		1212h
 
 IDM_FONT		equ		1301h
 
@@ -87,6 +88,9 @@ IDCC_STATUSBAR	equ		3000h
 	;全局存储字体
 	stCharFormat	CHARFORMAT<?>
 
+	stSystemTime SYSTEMTIME <>
+	stTimeString db 30 dup(?)
+
 .const
 	szClassName		db		'MyTextEditor',0
 	szCaptionMain	db		'TextEditor++',0
@@ -113,6 +117,9 @@ IDCC_STATUSBAR	equ		3000h
 	szTxt			db		'无格式文本',0
 
 	dwStatusWidth	dd		200,500,300,-1
+
+	szHelpTitle		db		'帮助',0
+	szHelp			db		'详情请查看作业文档',0
 
 	szAboutTitle	db		'关于TextEditor++',0
 	szAbout			db		'基于Win32汇编的文本编辑器',0dh,0ah,0dh,\
@@ -557,6 +564,71 @@ _Font			proc
 				ret
 				
 _Font			endp	
+
+_Date 			proc
+				invoke GetLocalTime ,ADDR stSystemTime
+
+				mov ebx, offset stTimeString
+
+				mov ax, stSystemTime.wYear
+				mov dx, 0
+				mov cx, 1000
+				div cx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				mov ax, dx
+				mov dx, 0
+				mov cx, 100
+				div cx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				mov ax, dx
+				mov dx, 0
+				mov cx, 10
+				div cx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				mov ax, dx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+
+				mov al, 47
+				mov [ebx], al
+				inc ebx
+
+				mov ax, stSystemTime.wMonth
+				mov dx, 0
+				mov cx, 10
+				div cx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				mov ax, dx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+
+				mov al, 47
+				mov [ebx], al
+				inc ebx
+
+				mov ax, stSystemTime.wDay
+				mov dx, 0
+				mov cx, 10
+				div cx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				mov ax, dx
+				add al, 48
+				mov [ebx], al
+				inc ebx
+				invoke SendMessage, hWinEdit,EM_REPLACESEL,0,addr stTimeString
+_Date			endp
 ;-----------------------------------------------------------------------
 ;窗口过程
 ;-----------------------------------------------------------------------
@@ -672,13 +744,13 @@ _ProcWinMain PROC USES ebx edi esi,hWnd,uMsg,wParam,lParam
 					invoke SendMessage, hWinEdit, EM_EXSETSEL, 0, addr @stRange
 
 				.elseif ax == IDM_DATE
-					;!!!将当前时间输入光标处，尚未实现
+					call _Date
 
 				.elseif ax == IDM_FONT
 					call _Font
 
 				.elseif ax == IDM_HELP
-					;!!!帮助……emmmmmm……尚未实现
+					invoke  MessageBox, hWinMain,addr szHelp, addr szHelpTitle, MB_OK
 
 				.elseif ax == IDM_ABOUT
 					invoke  MessageBox, hWinMain,addr szAbout, addr szAboutTitle, MB_OK
