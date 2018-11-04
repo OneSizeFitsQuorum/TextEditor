@@ -1,3 +1,0 @@
-﻿  Assembling TextEditer++.asm...
-TextEditer++.asm(7): fatal error A1000: cannot open file : windows.inc
-D:\VS\vs2017\Common7\IDE\VC\VCTargets\BuildCustomizations\masm.targets(69,5): error MSB3721: 命令“ml.exe /c /nologo /Zi /Fo"Release\TextEditer++.obj" /W3 /errorReport:prompt  /TaTextEditer++.asm”已退出，返回代码为 1。
