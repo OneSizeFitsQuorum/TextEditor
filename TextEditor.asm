@@ -97,7 +97,6 @@ IDCC_STATUSBAR	equ		3000h
 					db		'所有文件(*.*)', 0, '*.*', 0, 0
 	szDefaultExt		db		'txt', 0
 	szFileHasModified	db 	'文件已被修改,是否保存?', 0
-	;这个现在只有在菜单栏选退出才有效,直接关闭窗口无效,应当在quit那里也处理一下
 	;FINDREPLACE
 	szFindReplace	db    	'commdlg_FindReplace', 0
 	szNotFound		db		'文本中没有找到匹配项!', 0
@@ -135,7 +134,7 @@ _ShowLineNum  	PROC
 				local	@hdcBmp					;与RichEdit兼容的位图dc
 				local	@hdcCpb					;与RichEdit兼容的Dc
 				local	@stBuf[10]:byte			;显示行号的缓冲区
-				local @Margin
+				local @Margin						;行间距
 				pushad
 				
 				;将位图载入RichEdit环境中		
@@ -153,39 +152,34 @@ _ShowLineNum  	PROC
 				;填充颜色
 				invoke  CreateSolidBrush, 0face87h							
 				invoke  FillRect, @hdcCpb, addr @stClientRect, eax			
-				invoke  SetBkMode, @hdcCpb, TRANSPARENT
-				
+				invoke  SetBkMode, @hdcCpb, TRANSPARENT		
 				;获取总行数
 				invoke  SendMessage, hWinEdit, EM_GETLINECOUNT, 0, 0
-				mov 	@Line_Count, eax
-				
+				mov 	@Line_Count, eax	
 				;获取文本格式
 				invoke  RtlZeroMemory, addr @CharFmt, sizeof @CharFmt
 				mov		@CharFmt.cbSize, sizeof @CharFmt	
 				invoke  SendMessage, hWinEdit, EM_GETCHARFORMAT, SCF_DEFAULT, addr @CharFmt;获取字符高度，以英寸为单位，需转化为磅，只要除以20就行
-				
+				;获取行高
 				mov		eax, @CharFmt.yHeight									
 				cdq
 				mov		ebx, 20
 				div		ebx
 				mov		@Char_Height, eax
-				
+				;获取行间距
 				mov		ebx, 3
 				div		ebx
 				mov		@Margin, eax
 
-				invoke	RtlZeroMemory, addr @stBuf, sizeof @stBuf
-				
+				invoke	RtlZeroMemory, addr @stBuf, sizeof @stBuf				
 				;设置显示行号的前景色
 				invoke  SetTextColor, @hdcCpb, 0000000h
 				mov		ebx, @Char_Height
-				mov		@Char_Height, 0
-				
+				mov		@Char_Height,1 
 				;获取文本框中第一个可见的行的行号，没有这个行号显示不会跟着文本的滚动而滚动。
 				invoke  SendMessage, hWinEdit, EM_GETFIRSTVISIBLELINE, 0, 0
 				mov		edi, eax
-				inc		edi
-				
+				inc		edi			
 				;在位图dc中循环输出行号
 				.while	edi <= @Line_Count
 						invoke  wsprintf, addr @stBuf, addr charFmt, edi			;返回存储的字符数
@@ -196,14 +190,13 @@ _ShowLineNum  	PROC
 						mov		@Char_Height, edx
 						inc  	edi
 						.break  .if  edx > @ClientHeight 
-				.endw
-				
+				.endw		
 				;将已"画好"的位图真正"贴"到RichEdit中
 				invoke	BitBlt, @hDcEdit, 0, 0, 45, @ClientHeight, @hdcCpb, 0, 0, SRCCOPY 
 				invoke	DeleteDC, @hdcCpb
 				invoke	ReleaseDC, hWinEdit, @hDcEdit
 				invoke	DeleteObject, @hdcBmp
-				
+			
 				popad							
 				
 				ret
